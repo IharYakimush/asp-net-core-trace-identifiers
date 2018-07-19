@@ -28,7 +28,10 @@ namespace TraceIdentifiers.AspNetCore
         public async Task InvokeAsync(HttpContext context)
         {
             TryToWriteTraceIdentifier(context);
-            TryToReadTraceIdentifier(context);
+            IEnumerable<string> all = TryToReadTraceIdentifier(context);
+
+            TraceIdentifiersFeature feature = new TraceIdentifiersFeature(context.TraceIdentifier, all);
+            context.Features.Set(feature);
             await _next(context);
             TryToWriteTraceIdentifier(context);
         }
@@ -47,7 +50,7 @@ namespace TraceIdentifiers.AspNetCore
             }
         }
 
-        private void TryToReadTraceIdentifier(HttpContext context)
+        private IEnumerable<string> TryToReadTraceIdentifier(HttpContext context)
         {
             if (context.Request.Headers.TryGetValue(this.Options.RequestIdentifiersHeaderName, out var vals))
             {                
@@ -56,11 +59,11 @@ namespace TraceIdentifiers.AspNetCore
                     ? str.Split(this.Options.RequestIdentifiersSeparator) 
                     : Enumerable.Repeat(str, 1));
 
-                TraceIdentifiersFeature result = new TraceIdentifiersFeature(context.TraceIdentifier);
-                result.AddRange(allValues.Where(v => !string.IsNullOrWhiteSpace(v)).Take(this.Options.RequestIdentifiersMaxCount));
-
-                context.Features.Set(result);
+                return allValues.Where(v => !string.IsNullOrWhiteSpace(v))
+                    .Take(this.Options.RequestIdentifiersMaxCount);
             }
+
+            return Enumerable.Empty<string>();
         }
     }
 }

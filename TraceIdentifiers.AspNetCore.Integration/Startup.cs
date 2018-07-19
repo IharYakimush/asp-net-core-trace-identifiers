@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Context;
+using TraceIdentifiers.AspNetCore.Serilog;
 
 namespace TraceIdentifiers.AspNetCore.Integration
 {
@@ -15,17 +19,26 @@ namespace TraceIdentifiers.AspNetCore.Integration
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging();
+            LoggerConfiguration loggerConfiguration = new LoggerConfiguration();
+
+            loggerConfiguration.Enrich.FromLogContext();
+            loggerConfiguration.WriteTo.Console(outputTemplate:
+                "[{Timestamp:HH:mm:ss} {Level:u3}] {EventId} {Message:lj} {Properties}{NewLine}{Exception}{NewLine}");
+
+            Log.Logger = loggerConfiguration.CreateLogger();
+
+            services.AddLogging(builder => builder.ClearProviders().AddSerilog(dispose: true));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseTraceIdentifiers(new TraceIdentifiersMiddlewareOptions
-            {
-                RequestIdentifiersHeaderName = "Accept-Encoding",
-                RequestIdentifiersSeparator = ','
-            });
+                {
+                    RequestIdentifiersHeaderName = "Accept-Encoding",
+                    RequestIdentifiersSeparator = ','
+                })
+                .SetToSerilogContext();
 
             app.Run(async (context) =>
             {
@@ -36,11 +49,13 @@ namespace TraceIdentifiers.AspNetCore.Integration
                 {
                     await context.Response.WriteAsync($"Current: {ti.Current} ");
 
-                    foreach (var item in ti)
+                    foreach (var item in ti.All)
                     {
                         await context.Response.WriteAsync(item + "|");
                     }
                 }
+
+                context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("Demo").LogInformation("Hellow World Log. TraceCurrent: {TraceIdentifier} TraceAll: {TraceIdentifiers}");
             });
         }
     }

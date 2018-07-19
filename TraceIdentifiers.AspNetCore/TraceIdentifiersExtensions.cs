@@ -5,10 +5,12 @@ namespace TraceIdentifiers.AspNetCore
 {
     public static class TraceIdentifiersExtensions
     {
-        public static IApplicationBuilder UseTraceIdentifiers(this IApplicationBuilder app, TraceIdentifiersMiddlewareOptions options = null)
+        public static IAppWithTraceIdentifiersBuilder UseTraceIdentifiers(this IApplicationBuilder app, TraceIdentifiersMiddlewareOptions options = null)
         {
             options = options ?? new TraceIdentifiersMiddlewareOptions();
-            return app.UseMiddleware<TraceIdentifiersMiddleware>(Options.Create(options));
+            IApplicationBuilder builder = app.UseMiddleware<TraceIdentifiersMiddleware>(Options.Create(options));
+
+            return new AppBuilderWithTraceIdentifiers(builder);
         }
     }
 }
