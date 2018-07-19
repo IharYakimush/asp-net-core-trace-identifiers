@@ -21,11 +21,26 @@ namespace TraceIdentifiers.AspNetCore.Integration
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseTraceIdentifiers();
+            app.UseTraceIdentifiers(new TraceIdentifiersMiddlewareOptions
+            {
+                RequestIdentifiersHeaderName = "Accept-Encoding",
+                RequestIdentifiersSeparator = ','
+            });
 
             app.Run(async (context) =>
             {
-                await context.Response.WriteAsync("Hello World!");
+                await context.Response.WriteAsync("Hello World! ");
+                TraceIdentifiersFeature ti = context.Features.Get<TraceIdentifiersFeature>();
+
+                if (ti != null)
+                {
+                    await context.Response.WriteAsync($"Current: {ti.Current} ");
+
+                    foreach (var item in ti)
+                    {
+                        await context.Response.WriteAsync(item + "|");
+                    }
+                }
             });
         }
     }

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using System;
-
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace TraceIdentifiers.AspNetCore
@@ -26,7 +28,7 @@ namespace TraceIdentifiers.AspNetCore
         public async Task InvokeAsync(HttpContext context)
         {
             TryToWriteTraceIdentifier(context);
-
+            TryToReadTraceIdentifier(context);
             await _next(context);
             TryToWriteTraceIdentifier(context);
         }
@@ -42,6 +44,22 @@ namespace TraceIdentifiers.AspNetCore
                         context.Response.Headers[this.Options.AppendCurrentHeaderName] = context.TraceIdentifier;
                     }
                 }
+            }
+        }
+
+        private void TryToReadTraceIdentifier(HttpContext context)
+        {
+            if (context.Request.Headers.TryGetValue(this.Options.RequestIdentifiersHeaderName, out var vals))
+            {                
+                IEnumerable<string> allValues = vals.SelectMany(str => 
+                str.Contains(this.Options.RequestIdentifiersSeparator) 
+                    ? str.Split(this.Options.RequestIdentifiersSeparator) 
+                    : Enumerable.Repeat(str, 1));
+
+                TraceIdentifiersFeature result = new TraceIdentifiersFeature(context.TraceIdentifier);
+                result.AddRange(allValues.Where(v => !string.IsNullOrWhiteSpace(v)).Take(this.Options.RequestIdentifiersMaxCount));
+
+                context.Features.Set(result);
             }
         }
     }
