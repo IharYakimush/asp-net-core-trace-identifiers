@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace TraceIdentifiers.AspNetCore
@@ -13,7 +12,6 @@ namespace TraceIdentifiers.AspNetCore
         {
             Current = current ?? throw new ArgumentNullException(nameof(current));
             this.all = new HashSet<string>(all);
-            this.all.Add(current);
         }
 
         public string Current { get; }

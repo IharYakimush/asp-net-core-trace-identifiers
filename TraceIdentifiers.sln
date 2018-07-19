@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceIdentifiers.AspNetCore", "TraceIdentifiers.AspNetCore\TraceIdentifiers.AspNetCore.csproj", "{14E6EA43-1182-4B24-ADE0-3ADB82EDCB5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceIdentifiers.AspNetCore", "TraceIdentifiers.AspNetCore\TraceIdentifiers.AspNetCore.csproj", "{14E6EA43-1182-4B24-ADE0-3ADB82EDCB5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceIdentifiers.AspNetCore.Serilog", "TraceIdentifiers.AspNetCore.Serilog\TraceIdentifiers.AspNetCore.Serilog.csproj", "{EF3DECCC-C76A-4BE4-8341-92D9CDC55D1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceIdentifiers.AspNetCore.Serilog", "TraceIdentifiers.AspNetCore.Serilog\TraceIdentifiers.AspNetCore.Serilog.csproj", "{EF3DECCC-C76A-4BE4-8341-92D9CDC55D1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceIdentifiers.AspNetCore.Integration", "TraceIdentifiers.AspNetCore.Integration\TraceIdentifiers.AspNetCore.Integration.csproj", "{18F71CC7-0024-43CE-8692-0757D1E2BFF1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceIdentifiers.AspNetCore.Integration", "TraceIdentifiers.AspNetCore.Integration\TraceIdentifiers.AspNetCore.Integration.csproj", "{18F71CC7-0024-43CE-8692-0757D1E2BFF1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceIdentifiers.Abstractions", "TraceIdentifiers.Abstractions\TraceIdentifiers.Abstractions.csproj", "{8AD52F8F-C519-465E-868A-8CAC9F55F161}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{18F71CC7-0024-43CE-8692-0757D1E2BFF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18F71CC7-0024-43CE-8692-0757D1E2BFF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18F71CC7-0024-43CE-8692-0757D1E2BFF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AD52F8F-C519-465E-868A-8CAC9F55F161}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AD52F8F-C519-465E-868A-8CAC9F55F161}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AD52F8F-C519-465E-868A-8CAC9F55F161}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AD52F8F-C519-465E-868A-8CAC9F55F161}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
