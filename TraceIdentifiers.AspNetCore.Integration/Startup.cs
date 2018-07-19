@@ -38,7 +38,7 @@ namespace TraceIdentifiers.AspNetCore.Integration
                     RequestIdentifiersHeaderName = "Accept-Encoding",
                     RequestIdentifiersSeparator = ','
                 })
-                .SetToSerilogContext();
+                .PushToSerilogContext();
 
             app.Run(async (context) =>
             {

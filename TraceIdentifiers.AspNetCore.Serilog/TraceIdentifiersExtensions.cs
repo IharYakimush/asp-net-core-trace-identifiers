@@ -6,7 +6,7 @@ namespace TraceIdentifiers.AspNetCore.Serilog
 {
     public static class TraceIdentifiersExtensions
     {
-        public static IAppWithTraceIdentifiersBuilder SetToSerilogContext(this IAppWithTraceIdentifiersBuilder app, Action<SerilogTraceIdentifiersOptions> settings = null)
+        public static IAppWithTraceIdentifiersBuilder PushToSerilogContext(this IAppWithTraceIdentifiersBuilder app, Action<SerilogTraceIdentifiersOptions> settings = null)
         {
             if (app == null) throw new ArgumentNullException(nameof(app));
 
