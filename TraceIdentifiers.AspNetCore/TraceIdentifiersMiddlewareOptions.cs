@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using TraceIdentifiers.Abstractions;
 
 namespace TraceIdentifiers.AspNetCore
 {

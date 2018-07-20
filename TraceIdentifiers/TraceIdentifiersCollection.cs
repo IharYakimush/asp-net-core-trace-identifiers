@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
 
-namespace TraceIdentifiers.Abstractions
+namespace TraceIdentifiers
 {
-    public class TraceIdentifiers
+    public class TraceIdentifiersCollection
     {
         private readonly HashSet<string> all;
 
-        public TraceIdentifiers(string current, IEnumerable<string> all)
+        public TraceIdentifiersCollection(string current, IEnumerable<string> all)
         {
             Current = current ?? throw new ArgumentNullException(nameof(current));
             this.all = new HashSet<string>(all);           

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -8,19 +8,10 @@
     <Authors>IharYakimush</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageTags>trace activity correlation aspnetcore</PackageTags>
-    <Description>Track related activities across multiple services. Middleware for ASP.NET Core</Description>
+    <PackageTags>trace activity correlation</PackageTags>
+    <Description>Track related activities across multiple services</Description>
     <PackageLicenseUrl>https://github.com/IharYakimush/asp-net-core-trace-identifiers/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/IharYakimush/asp-net-core-trace-identifiers</PackageProjectUrl>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\TraceIdentifiers\TraceIdentifiers.csproj" />
-  </ItemGroup>
-  
 </Project>

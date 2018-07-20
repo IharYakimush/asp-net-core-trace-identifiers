@@ -18,7 +18,7 @@ namespace TraceIdentifiers.AspNetCore.Serilog
             {
                 e.EnrichersForContextFactory = context =>
                 {
-                    Abstractions.TraceIdentifiers feature = context.Features.Get<Abstractions.TraceIdentifiers>();
+                    TraceIdentifiersCollection feature = context.Features.Get<TraceIdentifiersCollection>();
                     if (options.SingleProperty)
                     {
                         return new[]

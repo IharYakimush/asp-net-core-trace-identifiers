@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Net.Http;
 
-namespace TraceIdentifiers.Abstractions
+namespace TraceIdentifiers
 {
     public static class HttpRequestTraceIdentifiersExtensions
     {
         public static HttpRequestMessage AppendTraceIdentifiers(
             this HttpRequestMessage request, 
-            TraceIdentifiers traceIdentifiers,
+            TraceIdentifiersCollection traceIdentifiers,
             TraceIdentifiersSendOptions options)
         {
             if (!request.Headers.Contains(options.HeaderHame))

@@ -1,4 +1,4 @@
-﻿namespace TraceIdentifiers.Abstractions
+﻿namespace TraceIdentifiers
 {
     public class TraceIdentifiersSendOptions
     {

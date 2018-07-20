@@ -3,14 +3,14 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TraceIdentifiers.Abstractions
+namespace TraceIdentifiers
 {
     public class HttpClientWithTraceIdentifiersHandler : HttpClientHandler
     {
-        private readonly TraceIdentifiers _traceIdentifiers;
+        private readonly TraceIdentifiersCollection _traceIdentifiers;
         private readonly TraceIdentifiersSendOptions _options;
 
-        public HttpClientWithTraceIdentifiersHandler(TraceIdentifiers traceIdentifiers, TraceIdentifiersSendOptions options)
+        public HttpClientWithTraceIdentifiersHandler(TraceIdentifiersCollection traceIdentifiers, TraceIdentifiersSendOptions options)
         {
             _traceIdentifiers = traceIdentifiers ?? throw new ArgumentNullException(nameof(traceIdentifiers));
             _options = options ?? throw new ArgumentNullException(nameof(options));

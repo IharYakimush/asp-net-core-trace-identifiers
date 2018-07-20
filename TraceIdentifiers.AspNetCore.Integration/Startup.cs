@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Context;
-using TraceIdentifiers.Abstractions;
 using TraceIdentifiers.AspNetCore.Serilog;
 
 namespace TraceIdentifiers.AspNetCore.Integration
@@ -47,7 +46,7 @@ namespace TraceIdentifiers.AspNetCore.Integration
             app.Run(async (context) =>
             {
                 await context.Response.WriteAsync("Hello World! ");
-                Abstractions.TraceIdentifiers ti = context.Features.Get<Abstractions.TraceIdentifiers>();
+                TraceIdentifiersCollection ti = context.Features.Get<TraceIdentifiersCollection>();
 
                 if (ti != null)
                 {
@@ -69,7 +68,7 @@ namespace TraceIdentifiers.AspNetCore.Integration
                     }                    
                 }
 
-                context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("Demo").LogInformation("Hellow World Log. TraceCurrent: {TraceIdentifier} TraceAll: {TraceIdentifiers}");
+                context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("Demo").LogInformation("Hellow World Log. TraceCurrent: {TraceIdentifier} TraceAll: {TraceIdentifiersCollection}");
             });
         }
     }

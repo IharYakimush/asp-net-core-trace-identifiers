@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TraceIdentifiers.Abstractions;
 
 namespace TraceIdentifiers.AspNetCore
 {
@@ -31,8 +30,8 @@ namespace TraceIdentifiers.AspNetCore
             TryToWriteTraceIdentifier(context);
             IEnumerable<string> all = TryToReadTraceIdentifier(context);
 
-            Abstractions.TraceIdentifiers feature = new Abstractions.TraceIdentifiers(context.TraceIdentifier, all);
-            context.Features.Set<Abstractions.TraceIdentifiers>(feature);
+            TraceIdentifiersCollection feature = new TraceIdentifiersCollection(context.TraceIdentifier, all);
+            context.Features.Set(feature);
             await _next(context);
             TryToWriteTraceIdentifier(context);
         }

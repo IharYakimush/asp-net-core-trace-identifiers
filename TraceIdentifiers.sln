@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceIdentifiers.AspNetCore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceIdentifiers.AspNetCore.Integration", "TraceIdentifiers.AspNetCore.Integration\TraceIdentifiers.AspNetCore.Integration.csproj", "{18F71CC7-0024-43CE-8692-0757D1E2BFF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceIdentifiers.Abstractions", "TraceIdentifiers.Abstractions\TraceIdentifiers.Abstractions.csproj", "{8AD52F8F-C519-465E-868A-8CAC9F55F161}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceIdentifiers", "TraceIdentifiers\TraceIdentifiers.csproj", "{8AD52F8F-C519-465E-868A-8CAC9F55F161}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

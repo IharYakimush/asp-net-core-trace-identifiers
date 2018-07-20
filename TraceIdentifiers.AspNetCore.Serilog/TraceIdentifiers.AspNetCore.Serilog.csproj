@@ -1,7 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>sgn.snk</AssemblyOriginatorKeyFile>
+    <Company />
+    <Authors>IharYakimush</Authors>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageTags>activity correlation serilog</PackageTags>
+    <Description>AspNetCore middleware to push TraceIdentifiers to Serilog LogContext </Description>
+    <PackageLicenseUrl>https://github.com/IharYakimush/asp-net-core-trace-identifiers/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/IharYakimush/asp-net-core-trace-identifiers</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

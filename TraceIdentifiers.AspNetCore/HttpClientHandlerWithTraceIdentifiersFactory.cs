@@ -2,7 +2,6 @@
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using TraceIdentifiers.Abstractions;
 
 namespace TraceIdentifiers.AspNetCore
 {
@@ -22,11 +21,11 @@ namespace TraceIdentifiers.AspNetCore
                 throw new InvalidOperationException($"Unable to get {nameof(HttpContext)} from {nameof(IHttpContextAccessor)}.");
             }
 
-            Abstractions.TraceIdentifiers identifiers = httpContext.Features.Get<Abstractions.TraceIdentifiers>();
+            TraceIdentifiersCollection identifiers = httpContext.Features.Get<TraceIdentifiersCollection>();
 
             if (identifiers == null)
             {
-                throw new InvalidOperationException($"{nameof(HttpContext)} do not have {nameof(Abstractions.TraceIdentifiers)} feature. Ensure that {nameof(TraceIdentifiersMiddleware)} registered before current one.");
+                throw new InvalidOperationException($"{nameof(HttpContext)} do not have {nameof(TraceIdentifiersCollection)} feature. Ensure that {nameof(TraceIdentifiersMiddleware)} registered before current one.");
             }
 
             return new HttpClientWithTraceIdentifiersHandler(identifiers, options ?? TraceIdentifiersSendOptions.Default);
