@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Net.Http;
 
-namespace TraceIdentifiers.AspNetCore
+namespace TraceIdentifiers.Abstractions
 {
-    public class TraceIdentifiersFeature
+    public class TraceIdentifiers
     {
         private readonly HashSet<string> all;
 
-        public TraceIdentifiersFeature(string current, IEnumerable<string> all)
+        public TraceIdentifiers(string current, IEnumerable<string> all)
         {
             Current = current ?? throw new ArgumentNullException(nameof(current));
-            this.all = new HashSet<string>(all);
+            this.all = new HashSet<string>(all);           
         }
 
         public string Current { get; }

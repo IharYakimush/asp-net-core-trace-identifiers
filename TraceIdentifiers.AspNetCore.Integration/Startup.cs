@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Context;
+using TraceIdentifiers.Abstractions;
 using TraceIdentifiers.AspNetCore.Serilog;
 
 namespace TraceIdentifiers.AspNetCore.Integration
@@ -28,6 +31,7 @@ namespace TraceIdentifiers.AspNetCore.Integration
             Log.Logger = loggerConfiguration.CreateLogger();
 
             services.AddLogging(builder => builder.ClearProviders().AddSerilog(dispose: true));
+            services.AddTraceIdentifiersClient();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,7 +47,7 @@ namespace TraceIdentifiers.AspNetCore.Integration
             app.Run(async (context) =>
             {
                 await context.Response.WriteAsync("Hello World! ");
-                TraceIdentifiersFeature ti = context.Features.Get<TraceIdentifiersFeature>();
+                Abstractions.TraceIdentifiers ti = context.Features.Get<Abstractions.TraceIdentifiers>();
 
                 if (ti != null)
                 {
@@ -53,6 +57,16 @@ namespace TraceIdentifiers.AspNetCore.Integration
                     {
                         await context.Response.WriteAsync(item + "|");
                     }
+
+                    if (!context.Request.Headers.ContainsKey(TraceIdentifiersSendOptions.DefaultHeaderName))
+                    {
+                        var handler = context.RequestServices.GetRequiredService<IHttpMessageHandlerFactory>();
+                        using (HttpClient client = new HttpClient(handler.Create()))
+                        {
+                            var text = await client.GetAsync("http://localhost:65239");
+                            await context.Response.WriteAsync(await text.Content.ReadAsStringAsync());
+                        }
+                    }                    
                 }
 
                 context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("Demo").LogInformation("Hellow World Log. TraceCurrent: {TraceIdentifier} TraceAll: {TraceIdentifiers}");

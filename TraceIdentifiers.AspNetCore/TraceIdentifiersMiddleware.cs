@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TraceIdentifiers.Abstractions;
 
 namespace TraceIdentifiers.AspNetCore
 {
@@ -30,8 +31,8 @@ namespace TraceIdentifiers.AspNetCore
             TryToWriteTraceIdentifier(context);
             IEnumerable<string> all = TryToReadTraceIdentifier(context);
 
-            TraceIdentifiersFeature feature = new TraceIdentifiersFeature(context.TraceIdentifier, all);
-            context.Features.Set(feature);
+            Abstractions.TraceIdentifiers feature = new Abstractions.TraceIdentifiers(context.TraceIdentifier, all);
+            context.Features.Set<Abstractions.TraceIdentifiers>(feature);
             await _next(context);
             TryToWriteTraceIdentifier(context);
         }
@@ -52,7 +53,7 @@ namespace TraceIdentifiers.AspNetCore
 
         private IEnumerable<string> TryToReadTraceIdentifier(HttpContext context)
         {
-            if (context.Request.Headers.TryGetValue(this.Options.RequestIdentifiersHeaderName, out var vals))
+            if (this.Options.ReadRequestIdentifiers && context.Request.Headers.TryGetValue(this.Options.RequestIdentifiersHeaderName, out var vals))
             {                
                 IEnumerable<string> allValues = vals.SelectMany(str => 
                 str.Contains(this.Options.RequestIdentifiersSeparator) 
@@ -60,6 +61,7 @@ namespace TraceIdentifiers.AspNetCore
                     : Enumerable.Repeat(str, 1));
 
                 return allValues.Where(v => !string.IsNullOrWhiteSpace(v))
+                    .Select(s => s.Length > this.Options.RequestIdentifierMaxLength ? s.Substring(0, this.Options.RequestIdentifierMaxLength) : s)
                     .Take(this.Options.RequestIdentifiersMaxCount);
             }
 

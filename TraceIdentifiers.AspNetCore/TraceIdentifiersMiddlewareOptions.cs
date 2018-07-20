@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
+using TraceIdentifiers.Abstractions;
 
 namespace TraceIdentifiers.AspNetCore
 {
     public class TraceIdentifiersMiddlewareOptions : IOptions<TraceIdentifiersMiddlewareOptions>
     {
-        private const string DefaultHeaderName = "X-TraceIdentifier";
+        private const string DefaultHeaderName = TraceIdentifiersSendOptions.DefaultHeaderName;
 
         public TraceIdentifiersMiddlewareOptions Value => this;
 
@@ -16,10 +17,10 @@ namespace TraceIdentifiers.AspNetCore
 
         public string RequestIdentifiersHeaderName { get; set; } = DefaultHeaderName;
 
-        public char RequestIdentifiersSeparator { get; set; } = '|';
+        public char RequestIdentifiersSeparator { get; set; } = TraceIdentifiersSendOptions.DefaultSeparator;
 
-        public int RequestIdentifiersMaxCount { get; set; } = 10;
+        public int RequestIdentifiersMaxCount { get; set; } = TraceIdentifiersSendOptions.DefaultIdentifiersMaxCount;
 
-        public int RequestIdentifiersMaxLength { get; set; } = 32;
+        public int RequestIdentifierMaxLength { get; set; } = TraceIdentifiersSendOptions.DefaultIdentifierMaxLength;
     }
 }
