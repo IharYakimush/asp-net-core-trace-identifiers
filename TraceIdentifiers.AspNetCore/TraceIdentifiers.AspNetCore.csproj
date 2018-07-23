@@ -12,6 +12,7 @@
     <Description>Track related activities across multiple services. Middleware for ASP.NET Core</Description>
     <PackageLicenseUrl>https://github.com/IharYakimush/asp-net-core-trace-identifiers/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/IharYakimush/asp-net-core-trace-identifiers</PackageProjectUrl>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">

@@ -3,8 +3,8 @@
     public class SerilogTraceIdentifiersOptions
     {
         internal string TraceIdentifiersCurrentPropertyName { get; set; } = "TraceIdentifier";
-        internal string TraceIdentifiersAllPropertyName { get; set; } = "TraceIdentifiersCollection";
-        internal string TraceIdentifiersSinglePropertyName { get; set; } = "TraceIdentifiersCollection";
+        internal string TraceIdentifiersAllPropertyName { get; set; } = "TraceIdentifiersAll";
+        internal string TraceIdentifiersSinglePropertyName { get; set; } = "TraceIdentifiers";
 
         internal bool SingleProperty { get; set; } = false;
 

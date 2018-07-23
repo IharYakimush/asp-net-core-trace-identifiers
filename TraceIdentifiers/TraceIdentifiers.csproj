@@ -12,6 +12,8 @@
     <Description>Track related activities across multiple services</Description>
     <PackageLicenseUrl>https://github.com/IharYakimush/asp-net-core-trace-identifiers/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/IharYakimush/asp-net-core-trace-identifiers</PackageProjectUrl>
+    <Version>1.0.1</Version>
+    <PackageReleaseNotes>Add current identifier to all identifiers collection by default</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>

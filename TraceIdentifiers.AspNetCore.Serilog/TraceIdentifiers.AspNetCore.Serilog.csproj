@@ -12,13 +12,15 @@
     <Description>AspNetCore middleware to push TraceIdentifiers to Serilog LogContext </Description>
     <PackageLicenseUrl>https://github.com/IharYakimush/asp-net-core-trace-identifiers/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/IharYakimush/asp-net-core-trace-identifiers</PackageProjectUrl>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
+    <Version>1.0.1</Version>
+    <PackageReleaseNotes>Unnecessary dependencies were removed. Default propery names were changed.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Serilog" Version="2.7.1" />
     <PackageReference Include="Serilog.Enrichers.AspNetCore.HttpContext" Version="1.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
   </ItemGroup>
 
   <ItemGroup>
