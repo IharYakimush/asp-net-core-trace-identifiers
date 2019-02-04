@@ -12,9 +12,26 @@
 
         private Stack<KeyValuePair<string,bool>> local;
 
+        private LinkedList<IEnumerable<string>> remoteShared { get; set; } = new LinkedList<IEnumerable<string>>();
+
+        private LinkedListNode<IEnumerable<string>> remoteBookmark = null;
+
         private string localBookmark;
 
         private const int MaxNestedLevel = 1000;
+
+        private bool disposed = false;
+
+        private LinkedList<IDisposable> linkedDisposable = new LinkedList<IDisposable>();
+
+        public event EventHandler<EventArgs> OnExtended;
+
+        public static TraceIdentifiersContext StartupEmpty { get; } = new TraceIdentifiersContext(
+            new Stack<KeyValuePair<string, bool>>(),
+            Enumerable.Empty<IEnumerable<string>>(),
+            null);
+
+        public static string StartupId { get; set; } = GetNonSecureRandomString(4);
 
         public static string GetNonSecureRandomString(int length = 8)
         {
@@ -38,7 +55,7 @@
 
         public string Remote { get; set; }
 
-        public LinkedList<Stack<string>> RemoteShared { get; set; } = new LinkedList<Stack<string>>();
+        public IEnumerable<string> RemoteShared => this.remoteShared.SelectMany(enumerable => enumerable);
 
         public TraceIdentifiersContext(
             bool shared = true,
@@ -47,6 +64,15 @@
             this.local = new Stack<KeyValuePair<string, bool>>();
 
             this.AddIdentifierToLocal(shared, traceIdentifier);
+        }
+
+        public TraceIdentifiersContext Link(IDisposable disposable)
+        {
+            if (disposable == null) throw new ArgumentNullException(nameof(disposable));
+
+            this.linkedDisposable.AddLast(disposable);
+
+            return this;
         }
 
         private void AddIdentifierToLocal(bool shared, string traceIdentifier)
@@ -77,10 +103,24 @@
             this.localBookmark = traceIdentifier;
         }
 
-        private TraceIdentifiersContext(Stack<KeyValuePair<string, bool>> local, string traceIdentifier, bool shared)
+        private TraceIdentifiersContext(Stack<KeyValuePair<string, bool>> local, IEnumerable<IEnumerable<string>> remoteShared, string remote)
         {
             this.local = local;
 
+            // Don't propagate remote activities to parent scope
+            this.remoteShared = new LinkedList<IEnumerable<string>>(remoteShared.ToArray());
+
+            this.Remote = remote;
+        }
+
+        private TraceIdentifiersContext(
+            Stack<KeyValuePair<string, bool>> local,
+            LinkedList<IEnumerable<string>> remoteShared,
+            string remote,
+            string traceIdentifier,
+            bool shared)
+            : this(local, remoteShared, remote)
+        {
             this.AddIdentifierToLocal(shared, traceIdentifier);
         }
 
@@ -88,18 +128,68 @@
         {
             if (this.localBookmark == this.local.Peek().Key)
             {
-                return new TraceIdentifiersContext(this.local, local, shared);
+                TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared, this.Remote, local, shared);
+                result.localBookmark = this.localBookmark;
+                result.OnExtended = this.OnExtended;
+                this.OnExtended?.Invoke(result, EventArgs.Empty);
+                return result;
             }
             
             throw new InvalidOperationException("Unable to create child context, because previous context with same nested level not disposed");
         }
 
+        public TraceIdentifiersContext AcceptRemote(IEnumerable<string> values)
+        {
+            if (values == null) throw new ArgumentNullException(nameof(values));
+            TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared, this.Remote);
+            result.remoteBookmark = result.remoteShared.AddLast(values);
+            result.OnExtended = this.OnExtended;
+            this.OnExtended?.Invoke(result, EventArgs.Empty);
+            return result;
+        }
+
         public void Dispose()
         {
-            if (this.localBookmark == this.local.Peek().Key)
+            if (this.disposed)
             {
-                this.local.Pop();
-            }            
+                throw new InvalidOperationException("Already disposed");
+            }
+
+            this.disposed = true;
+
+            if (this.remoteBookmark != null)
+            {
+                this.remoteShared.Remove(this.remoteBookmark);
+            }
+            else
+            {
+                if (this.localBookmark == this.local.Peek().Key)
+                {
+                    this.local.Pop();
+                }
+            }
+
+            if (this.linkedDisposable.Any())
+            {
+                List<Exception> inner = new List<Exception>(this.linkedDisposable.Count);
+
+                foreach (IDisposable disposable in this.linkedDisposable)
+                {
+                    try
+                    {
+                        disposable.Dispose();
+                    }
+                    catch (Exception exception)
+                    {
+                        inner.Add(exception);
+                    }
+                }
+
+                if (inner.Any())
+                {
+                    throw new AggregateException("Exceptions in linked disposables", inner);
+                }
+            }
         }
     }
 }
