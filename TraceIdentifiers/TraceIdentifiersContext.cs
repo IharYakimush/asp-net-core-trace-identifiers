@@ -24,7 +24,7 @@
 
         private LinkedList<IDisposable> linkedDisposable = new LinkedList<IDisposable>();
 
-        public event EventHandler<EventArgs> OnExtended;
+        public event EventHandler<EventArgs> OnChildCreated;
 
         public static TraceIdentifiersContext StartupEmpty { get; } = new TraceIdentifiersContext(
             new Stack<KeyValuePair<string, bool>>(),
@@ -124,27 +124,27 @@
             this.AddIdentifierToLocal(shared, traceIdentifier);
         }
 
-        public TraceIdentifiersContext CreateChild(bool shared = true, string local = null)
+        public TraceIdentifiersContext CreateChildWithLocal(bool shared = true, string local = null)
         {
             if (this.localBookmark == this.local.Peek().Key)
             {
                 TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared, this.Remote, local, shared);
                 result.localBookmark = this.localBookmark;
-                result.OnExtended = this.OnExtended;
-                this.OnExtended?.Invoke(result, EventArgs.Empty);
+                result.OnChildCreated = this.OnChildCreated;
+                this.OnChildCreated?.Invoke(result, EventArgs.Empty);
                 return result;
             }
             
             throw new InvalidOperationException("Unable to create child context, because previous context with same nested level not disposed");
         }
 
-        public TraceIdentifiersContext AcceptRemote(IEnumerable<string> values)
+        public TraceIdentifiersContext CreateChildWithRemote(IEnumerable<string> values)
         {
             if (values == null) throw new ArgumentNullException(nameof(values));
             TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared, this.Remote);
             result.remoteBookmark = result.remoteShared.AddLast(values);
-            result.OnExtended = this.OnExtended;
-            this.OnExtended?.Invoke(result, EventArgs.Empty);
+            result.OnChildCreated = this.OnChildCreated;
+            this.OnChildCreated?.Invoke(result, EventArgs.Empty);
             return result;
         }
 

@@ -30,16 +30,16 @@
         {
             TraceIdentifiersContext c = new TraceIdentifiersContext(true, "qwe");
 
-            using (var c1 = c.CreateChild(false, "c1"))
+            using (var c1 = c.CreateChildWithLocal(false, "c1"))
             {
-                using (var c11 = c1.CreateChild(false, "c11"))
+                using (var c11 = c1.CreateChildWithLocal(false, "c11"))
                 {
                     Assert.Equal("c11", c11.Local.ElementAt(0));
                     Assert.Equal("c1", c11.Local.ElementAt(1));
                     Assert.Equal("qwe", c11.Local.ElementAt(2));
                 }
 
-                using (var c12 = c1.CreateChild(false, "c12"))
+                using (var c12 = c1.CreateChildWithLocal(false, "c12"))
                 {
                     Assert.Equal("c12", c12.Local.ElementAt(0));
                     Assert.Equal("c1", c12.Local.ElementAt(1));
@@ -47,7 +47,7 @@
                 }
             }
 
-            using (var c2 = c.CreateChild(false, "c2"))
+            using (var c2 = c.CreateChildWithLocal(false, "c2"))
             {
                 Assert.Equal("c2", c2.Local.ElementAt(0));
                 Assert.Equal("qwe", c2.Local.ElementAt(1));
@@ -58,17 +58,17 @@
         public void CreateOnSameLevel()
         {
             TraceIdentifiersContext c = new TraceIdentifiersContext(true, "qwe");
-            c.CreateChild(false, "1");
-            Assert.Throws<InvalidOperationException>(() => c.CreateChild(false, "2"));
+            c.CreateChildWithLocal(false, "1");
+            Assert.Throws<InvalidOperationException>(() => c.CreateChildWithLocal(false, "2"));
         }
 
         [Fact]
         public void AcceptRemotes()
         {
             TraceIdentifiersContext c = new TraceIdentifiersContext(true, "qwe");
-            using (var c1 = c.CreateChild(false, "c1"))
+            using (var c1 = c.CreateChildWithLocal(false, "c1"))
             {
-                var r1 = c1.AcceptRemote(new[] { "r1", "r2" });
+                var r1 = c1.CreateChildWithRemote(new[] { "r1", "r2" });
                 using (r1)
                 {
                     Assert.Equal("c1", c1.Local.ElementAt(0));

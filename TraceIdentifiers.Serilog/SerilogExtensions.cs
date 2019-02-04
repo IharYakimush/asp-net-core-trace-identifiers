@@ -18,7 +18,7 @@ namespace TraceIdentifiers.Serilog
             LogContextBuilder builder = new LogContextBuilder();
             settings?.Invoke(builder);
 
-            traceIdentifiersContext.OnExtended += (sender, args) =>
+            traceIdentifiersContext.OnChildCreated += (sender, args) =>
                 {
                     TraceIdentifiersContext context = (TraceIdentifiersContext)sender;
 
