@@ -85,9 +85,10 @@
 
                     Assert.Equal("r1", r1.RemoteShared.ElementAt(0));
                     Assert.Equal("r2", r1.RemoteShared.ElementAt(1));
-                    
-                    Assert.Empty(c.RemoteShared);
-                    Assert.Empty(c1.RemoteShared);
+
+                    Assert.Equal("r1", c.RemoteShared.ElementAt(0));
+                    Assert.Equal("r2", c1.RemoteShared.ElementAt(1));
+
                 }
 
                 Assert.Empty(r1.RemoteShared);

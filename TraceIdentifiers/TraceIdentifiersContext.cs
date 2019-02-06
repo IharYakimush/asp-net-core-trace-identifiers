@@ -28,7 +28,7 @@
 
         public static TraceIdentifiersContext StartupEmpty { get; } = new TraceIdentifiersContext(
             new Stack<KeyValuePair<string, bool>>(),
-            Enumerable.Empty<IEnumerable<string>>(),
+            new LinkedList<IEnumerable<string>>(), 
             null);
 
         public static string StartupId { get; set; } = GetNonSecureRandomString(4);
@@ -103,12 +103,11 @@
             this.localBookmark = traceIdentifier;
         }
 
-        private TraceIdentifiersContext(Stack<KeyValuePair<string, bool>> local, IEnumerable<IEnumerable<string>> remoteShared, string remote)
+        private TraceIdentifiersContext(Stack<KeyValuePair<string, bool>> local, LinkedList<IEnumerable<string>> remoteShared, string remote)
         {
             this.local = local;
 
-            // Don't propagate remote activities to parent scope
-            this.remoteShared = new LinkedList<IEnumerable<string>>(remoteShared.ToArray());
+            this.remoteShared = remoteShared;
 
             this.Remote = remote;
         }
@@ -146,6 +145,33 @@
             result.localBookmark = this.localBookmark;
             result.OnChildCreated = this.OnChildCreated;
             this.OnChildCreated?.Invoke(result, EventArgs.Empty);
+            return result;
+        }
+
+        public TraceIdentifiersContext CloneForThread()
+        {
+            Stack<KeyValuePair<string, bool>> stack = new Stack<KeyValuePair<string, bool>>(this.local.Reverse());
+            LinkedList<IEnumerable<string>> list = new LinkedList<IEnumerable<string>>(this.remoteShared.Select(enm => enm.ToArray()).ToArray());
+
+            TraceIdentifiersContext result = new TraceIdentifiersContext(stack, list, this.Remote);
+
+            result.OnChildCreated = this.OnChildCreated;
+            result.localBookmark = this.localBookmark;
+            
+            if (this.remoteBookmark != null)
+            {
+                LinkedListNode<IEnumerable<string>> nthis = this.remoteShared.First;
+                LinkedListNode<IEnumerable<string>> nresult = result.remoteShared.First;
+
+                while (this.remoteBookmark != nthis)
+                {
+                    nthis = nthis.Next;
+                    nresult = nresult.Next;
+                }
+
+                result.remoteBookmark = nresult;
+            }
+
             return result;
         }
 
