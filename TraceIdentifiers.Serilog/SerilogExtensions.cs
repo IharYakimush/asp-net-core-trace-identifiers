@@ -13,36 +13,43 @@ namespace TraceIdentifiers.Serilog
     public static class SerilogExtensions
     {
         public static TraceIdentifiersContext LinkToSerilogLogContext(
-            this TraceIdentifiersContext traceIdentifiersContext, Action<LogContextBuilder> settings)
+            this TraceIdentifiersContext traceIdentifiersContext, Action<LogContextBuilder> settings = null)
         {
             LogContextBuilder builder = new LogContextBuilder();
             settings?.Invoke(builder);
+
+            LinkEnrichersToContext(traceIdentifiersContext, builder);
 
             traceIdentifiersContext.OnChildCreated += (sender, args) =>
                 {
                     TraceIdentifiersContext context = (TraceIdentifiersContext)sender;
 
-                    ILogEventEnricher[] enrichers = builder.Factories.Select(
-                        func =>
-                            {
-                                try
-                                {
-                                    return func(context);
-                                }
-                                catch
-                                {
-                                    return null;
-                                }
-                            }).Where(e => e != null).ToArray();
-
-                    if (enrichers.Any())
-                    {
-                        IDisposable disposable = LogContext.Push(enrichers);
-                        context.Link(disposable);
-                    }
+                    LinkEnrichersToContext(context, builder);
                 };
 
             return traceIdentifiersContext;
-        }        
+        }
+
+        private static void LinkEnrichersToContext(TraceIdentifiersContext context, LogContextBuilder builder)
+        {
+            ILogEventEnricher[] enrichers = builder.Factories.Select(
+                func =>
+                    {
+                        try
+                        {
+                            return func(context);
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    }).Where(e => e != null).ToArray();
+
+            if (enrichers.Any())
+            {
+                IDisposable disposable = LogContext.Push(enrichers);
+                context.Link(disposable);
+            }
+        }
     }
 }

@@ -37,6 +37,11 @@
                     Assert.Equal("c11", c11.Local.ElementAt(0));
                     Assert.Equal("c1", c11.Local.ElementAt(1));
                     Assert.Equal("qwe", c11.Local.ElementAt(2));
+
+                    Assert.Equal("c1", c1.Local.ElementAt(0));
+                    Assert.Equal("qwe", c1.Local.ElementAt(1));
+
+                    Assert.Equal("qwe", c.Local.ElementAt(0));
                 }
 
                 using (var c12 = c1.CreateChildWithLocal(false, "c12"))

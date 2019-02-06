@@ -23,17 +23,14 @@ namespace TraceIdentifiers.AspNetCore.Serilog
                     {
                         return new[]
                         {
-                            new PropertyEnricher(options.TraceIdentifiersSinglePropertyName,
-                                feature, true),
+                            new PropertyEnricher(options.TraceIdentifiersSinglePropertyName, feature, true),
                         };
                     }
 
                     return new[]
                     {
-                        new PropertyEnricher(options.TraceIdentifiersCurrentPropertyName,
-                            feature?.Current, false),
-                        new PropertyEnricher(options.TraceIdentifiersAllPropertyName,
-                            feature?.All, true)
+                        new PropertyEnricher(options.TraceIdentifiersCurrentPropertyName, feature?.Current, false),
+                        new PropertyEnricher(options.TraceIdentifiersAllPropertyName, feature?.All, true)
                     };
                 };
             });

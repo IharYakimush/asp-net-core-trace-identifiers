@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>sgn.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\\sgn.snk</AssemblyOriginatorKeyFile>
     <Company />
     <Authors>IharYakimush</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -17,6 +17,10 @@
     <Version>2.0.0</Version>
     <PackageReleaseNotes>Unnecessary dependencies were removed. Default propery names were changed.</PackageReleaseNotes>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\sgn.snk" Link="sgn.snk" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Serilog" Version="2.8.0" />

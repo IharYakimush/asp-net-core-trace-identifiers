@@ -49,9 +49,9 @@
             return result.ToString();
         }
 
-        public IEnumerable<string> Local => this.local.Select(p => p.Key);
+        public IEnumerable<string> Local => this.local.Select(p => p.Key).SkipWhile(s => s != this.localBookmark);
 
-        public IEnumerable<string> LocalShared => this.local.Where(p => p.Value).Select(p => p.Key);
+        public IEnumerable<string> LocalShared => this.local.Where(p => p.Value).Select(p => p.Key).SkipWhile(s => s != this.localBookmark);
 
         public string Remote { get; set; }
 
@@ -129,7 +129,7 @@
             if (this.localBookmark == this.local.Peek().Key)
             {
                 TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared, this.Remote, local, shared);
-                result.localBookmark = this.localBookmark;
+
                 result.OnChildCreated = this.OnChildCreated;
                 this.OnChildCreated?.Invoke(result, EventArgs.Empty);
                 return result;
@@ -143,6 +143,7 @@
             if (values == null) throw new ArgumentNullException(nameof(values));
             TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared, this.Remote);
             result.remoteBookmark = result.remoteShared.AddLast(values);
+            result.localBookmark = this.localBookmark;
             result.OnChildCreated = this.OnChildCreated;
             this.OnChildCreated?.Invoke(result, EventArgs.Empty);
             return result;

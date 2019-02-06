@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>sgn.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\\sgn.snk</AssemblyOriginatorKeyFile>
     <Company />
     <Authors>IharYakimush</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

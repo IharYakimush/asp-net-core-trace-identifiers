@@ -22,6 +22,13 @@
             return builder;
         }
 
+        public static LogContextBuilder WithRemoteIdentifiers(this LogContextBuilder builder, string name = "correlationRemoteAll")
+        {
+            //builder.Factories.Add(c => new PropertyEnricher(name, c.Local.Reverse().ToArray()));
+
+            return builder;
+        }
+
         public static LogContextBuilder WithLocalIdentifier(this LogContextBuilder builder, string name = "correlationLocal")
         {
             builder.Factories.Add(c => new PropertyEnricher(name, c.Local.FirstOrDefault()));
