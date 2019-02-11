@@ -38,8 +38,8 @@ namespace TraceIdentifiers.AspNetCore.Integration
         {
             app.UseTraceIdentifiers(new TraceIdentifiersMiddlewareOptions
                 {
-                    RequestIdentifiersHeaderName = "Accept-Encoding",
-                    RequestIdentifiersSeparator = ','
+                    RemoteSharedHeaderName = "Accept-Encoding",
+                    RemoteSharedSeparator = ','
                 })
                 .PushToSerilogContext();
 

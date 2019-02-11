@@ -8,18 +8,19 @@ namespace TraceIdentifiers.AspNetCore
 
         public TraceIdentifiersMiddlewareOptions Value => this;
 
-        public bool AppendCurrentToResponse { get; set; } = true;
+        public bool WriteLocal { get; set; } = true;
+        public bool ShareLocal { get; set; } = true;
 
-        public string AppendCurrentHeaderName { get; set; } = DefaultHeaderName;
+        public string WriteLocalHeaderName { get; set; } = DefaultHeaderName;
 
-        public bool ReadRequestIdentifiers { get; set; } = true;
+        public bool ReadRemoteShared { get; set; } = true;
 
-        public string RequestIdentifiersHeaderName { get; set; } = DefaultHeaderName;
+        public string RemoteSharedHeaderName { get; set; } = DefaultHeaderName;
 
-        public char RequestIdentifiersSeparator { get; set; } = TraceIdentifiersSendOptions.DefaultSeparator;
+        public char RemoteSharedSeparator { get; set; } = TraceIdentifiersSendOptions.DefaultSeparator;
 
-        public int RequestIdentifiersMaxCount { get; set; } = TraceIdentifiersSendOptions.DefaultIdentifiersMaxCount;
+        public int RemoteSharedMaxCount { get; set; } = TraceIdentifiersSendOptions.DefaultIdentifiersMaxCount;
 
-        public int RequestIdentifierMaxLength { get; set; } = TraceIdentifiersSendOptions.DefaultIdentifierMaxLength;
+        public int RemoteSharedMaxLength { get; set; } = TraceIdentifiersSendOptions.DefaultIdentifierMaxLength;
     }
 }

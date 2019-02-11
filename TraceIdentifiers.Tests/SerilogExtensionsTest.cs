@@ -137,7 +137,7 @@
                 List<Thread> threads = new List<Thread>();
                 for (int i = 0; i < 10; i++)
                 {
-                    Thread thread = new Thread(this.RunThread);                        
+                    Thread thread = new Thread(this.RunThread);
                     thread.Start(c);
                     threads.Add(thread);
                 }

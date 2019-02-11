@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TraceIdentifiers.AspNetCore.Serilog\TraceIdentifiers.AspNetCore.Serilog.csproj" />
     <ProjectReference Include="..\TraceIdentifiers.AspNetCore\TraceIdentifiers.AspNetCore.csproj" />
+    <ProjectReference Include="..\TraceIdentifiers.Serilog\TraceIdentifiers.Serilog.csproj" />
   </ItemGroup>
 
 </Project>

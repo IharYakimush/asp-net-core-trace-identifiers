@@ -27,41 +27,69 @@ namespace TraceIdentifiers.AspNetCore
 
         public async Task InvokeAsync(HttpContext context)
         {
-            TryToWriteTraceIdentifier(context);
-            IEnumerable<string> all = TryToReadTraceIdentifier(context);
+            this.TryToWriteLocal(context);
+            ICollection<string> all = this.TryToReadRemoteShared(context).ToArray();
 
-            TraceIdentifiersCollection feature = new TraceIdentifiersCollection(context.TraceIdentifier, all);
-            context.Features.Set(feature);
-            await _next(context);
-            TryToWriteTraceIdentifier(context);
+            TraceIdentifiersContext feature = TraceIdentifiersContext.StartupEmpty
+                .CloneForThread();
+
+            feature.Remote = this.TryToReadRemoteSingle(context);
+
+            feature = feature.CreateChildWithLocal(this.Options.ShareLocal, context.TraceIdentifier);
+
+            using (feature)
+            {
+                if (all.Any())
+                {
+                    using (var withRemote = feature.CreateChildWithRemote(all))
+                    {
+                        context.Features.Set(withRemote);
+                        await _next(context);
+                    }
+                }
+                else
+                {
+                    context.Features.Set(feature);
+                    await _next(context);
+                }
+            }
+                       
+            this.TryToWriteLocal(context);
         }
 
-        private void TryToWriteTraceIdentifier(HttpContext context)
+        private string TryToReadRemoteSingle(HttpContext context)
         {
-            if (this.Options.AppendCurrentToResponse)
+            string result = null;
+
+            return result;
+        }
+
+        private void TryToWriteLocal(HttpContext context)
+        {
+            if (this.Options.WriteLocal)
             {
                 if (!context.Response.HasStarted)
                 {
-                    if (!context.Response.Headers.ContainsKey(this.Options.AppendCurrentHeaderName))
+                    if (!context.Response.Headers.ContainsKey(this.Options.WriteLocalHeaderName))
                     {
-                        context.Response.Headers[this.Options.AppendCurrentHeaderName] = context.TraceIdentifier;
+                        context.Response.Headers[this.Options.WriteLocalHeaderName] = context.TraceIdentifier;
                     }
                 }
             }
         }
 
-        private IEnumerable<string> TryToReadTraceIdentifier(HttpContext context)
+        private IEnumerable<string> TryToReadRemoteShared(HttpContext context)
         {
-            if (this.Options.ReadRequestIdentifiers && context.Request.Headers.TryGetValue(this.Options.RequestIdentifiersHeaderName, out var vals))
+            if (this.Options.ReadRemoteShared && context.Request.Headers.TryGetValue(this.Options.RemoteSharedHeaderName, out var vals))
             {                
                 IEnumerable<string> allValues = vals.SelectMany(str => 
-                str.Contains(this.Options.RequestIdentifiersSeparator) 
-                    ? str.Split(this.Options.RequestIdentifiersSeparator) 
+                str.Contains(this.Options.RemoteSharedSeparator) 
+                    ? str.Split(this.Options.RemoteSharedSeparator) 
                     : Enumerable.Repeat(str, 1));
 
                 return allValues.Where(v => !string.IsNullOrWhiteSpace(v))
-                    .Select(s => s.Length > this.Options.RequestIdentifierMaxLength ? s.Substring(0, this.Options.RequestIdentifierMaxLength) : s)
-                    .Take(this.Options.RequestIdentifiersMaxCount);
+                    .Select(s => s.Length > this.Options.RemoteSharedMaxLength ? s.Substring(0, this.Options.RemoteSharedMaxLength) : s)
+                    .Take(this.Options.RemoteSharedMaxCount);
             }
 
             return Enumerable.Empty<string>();
