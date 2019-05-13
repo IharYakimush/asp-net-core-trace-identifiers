@@ -99,5 +99,38 @@
                 Assert.Empty(c1.RemoteShared);
             }
         }
+
+        [Fact]
+        public void AcceptRemotesWithoutDisposing()
+        {
+            TraceIdentifiersContext c = new TraceIdentifiersContext(true, "qwe");
+            using (var c1 = c.CreateChildWithLocal(false, "c1"))
+            {
+                var r1 = c1.CreateChildWithRemote(new[] {"r1", "r2"});
+
+                Assert.Equal("c1", c1.Local.ElementAt(0));
+                Assert.Equal("qwe", c1.Local.ElementAt(1));
+
+                // Local saved if accept remote
+                Assert.Equal("c1", r1.Local.ElementAt(0));
+                Assert.Equal("qwe", r1.Local.ElementAt(1));
+
+                Assert.Equal("r1", r1.RemoteShared.ElementAt(0));
+                Assert.Equal("r2", r1.RemoteShared.ElementAt(1));
+
+                Assert.Equal("r1", c.RemoteShared.ElementAt(0));
+                Assert.Equal("r2", c1.RemoteShared.ElementAt(1));
+
+                using (var c2 = c1.CreateChildWithLocal(false, "c2"))
+                {
+                    Assert.Equal("c2", c2.Local.ElementAt(0));
+                    Assert.Equal("c1", c2.Local.ElementAt(1));
+                    Assert.Equal("qwe", c2.Local.ElementAt(2));
+
+                    Assert.Equal("r1", c2.RemoteShared.ElementAt(0));
+                    Assert.Equal("r2", c2.RemoteShared.ElementAt(1));
+                }
+            }
+        }
     }
 }

@@ -113,10 +113,58 @@
         }
 
         [Fact]
+        public void PushRemoteToContext()
+        {
+            TraceIdentifiersContext c =
+                new TraceIdentifiersContext(true, "qwe").CreateChildWithRemote("rem1")
+                    .LinkToSerilogLogContext(builder =>
+                        builder.WithStartup().WithRemoteIdentifiers().WithRemoteIdentifier());
+
+            using (LogContext.PushProperty("anyOther", "Any1"))
+            using (c)
+            {
+                var logger = CreateLogger();
+                logger.Item1.Information("info1");
+
+                LogEvent logEvent = logger.Item3.Single(le => le.MessageTemplate.Text == "info1");
+                Assert.Equal(4, logEvent.Properties.Count);
+
+                Assert.Equal("Any1", logEvent.Properties["anyOther"].ToString().Trim('"'));
+                Assert.Equal(TraceIdentifiersContext.StartupId, logEvent.Properties["correlationStartup"].ToString().Trim('"'));
+                Assert.Equal("rem1", logEvent.Properties["correlationRemote"].ToString().Trim('"'));
+                Assert.Equal("[]", logEvent.Properties["correlationRemoteAll"].ToString());
+
+                using (var r1 = c.CreateChildWithRemote(new []{"r1","r2"},"rem2"))
+                {
+                    logger.Item1.Information("info2");
+                    logEvent = logger.Item3.Single(le => le.MessageTemplate.Text == "info2");
+                    Assert.Equal(4, logEvent.Properties.Count);
+
+                    Assert.Equal("Any1", logEvent.Properties["anyOther"].ToString().Trim('"'));
+                    Assert.Equal(TraceIdentifiersContext.StartupId, logEvent.Properties["correlationStartup"].ToString().Trim('"'));
+                    Assert.Equal("rem2", logEvent.Properties["correlationRemote"].ToString().Trim('"'));
+                    Assert.Equal("[\"r1\", \"r2\"]", logEvent.Properties["correlationRemoteAll"].ToString());
+
+                    using (r1.CreateChildWithRemote(new[] { "r3", "r4" }))
+                    {
+                        logger.Item1.Information("info3");
+                        logEvent = logger.Item3.Single(le => le.MessageTemplate.Text == "info3");
+                        Assert.Equal(4, logEvent.Properties.Count);
+
+                        Assert.Equal("Any1", logEvent.Properties["anyOther"].ToString().Trim('"'));
+                        Assert.Equal(TraceIdentifiersContext.StartupId, logEvent.Properties["correlationStartup"].ToString().Trim('"'));
+                        Assert.Equal("rem2", logEvent.Properties["correlationRemote"].ToString().Trim('"'));
+                        Assert.Equal("[\"r1\", \"r2\", \"r3\", \"r4\"]", logEvent.Properties["correlationRemoteAll"].ToString());
+                    }                    
+                }                
+            }
+        }
+
+        [Fact]
         public void MultiThreading()
         {
             TraceIdentifiersContext c =
-                new TraceIdentifiersContext(true, "qwe") { Remote = "rm" }.LinkToSerilogLogContext(
+                new TraceIdentifiersContext(true, "qwe").CreateChildWithRemote("rm").LinkToSerilogLogContext(
                     builder => builder.WithDefaults());
 
             using (LogContext.PushProperty("anyOther", "Any1"))
@@ -178,7 +226,7 @@
         public void PushDefaultToContext()
         {
             TraceIdentifiersContext c =
-                new TraceIdentifiersContext(true, "qwe") { Remote = "rm" }.LinkToSerilogLogContext(
+                new TraceIdentifiersContext(true, "qwe").CreateChildWithRemote("rm").LinkToSerilogLogContext(
                     builder => builder.WithDefaults());
 
             using (LogContext.PushProperty("anyOther", "Any1"))
@@ -205,7 +253,7 @@
                     Assert.Equal(TraceIdentifiersContext.StartupId, logEvent.Properties["correlationStartup"].ToString().Trim('"'));
                     Assert.Equal("qwe", logEvent.Properties["correlationLocal"].ToString().Trim('"'));
                     Assert.Equal("rm", logEvent.Properties["correlationRemote"].ToString().Trim('"'));
-                    Assert.Equal("[\"r1\", \"r2\", \"qwe\"]", logEvent.Properties["correlationAll"].ToString());
+                    Assert.Equal("[\"qwe\", \"r1\", \"r2\"]", logEvent.Properties["correlationAll"].ToString());
 
                     using (var c1 =r1.CreateChildWithLocal(false, "c11"))
                     {
@@ -217,7 +265,7 @@
                         Assert.Equal(TraceIdentifiersContext.StartupId, logEvent.Properties["correlationStartup"].ToString().Trim('"'));
                         Assert.Equal("c11", logEvent.Properties["correlationLocal"].ToString().Trim('"'));
                         Assert.Equal("rm", logEvent.Properties["correlationRemote"].ToString().Trim('"'));
-                        Assert.Equal("[\"r1\", \"r2\", \"qwe\", \"c11\"]", logEvent.Properties["correlationAll"].ToString());
+                        Assert.Equal("[\"qwe\", \"c11\", \"r1\", \"r2\"]", logEvent.Properties["correlationAll"].ToString());
 
                         using (var r2 = c1.CreateChildWithRemote(new[] { "r3", "r4" }))
                         {
@@ -229,7 +277,7 @@
                             Assert.Equal(TraceIdentifiersContext.StartupId, logEvent.Properties["correlationStartup"].ToString().Trim('"'));
                             Assert.Equal("c11", logEvent.Properties["correlationLocal"].ToString().Trim('"'));
                             Assert.Equal("rm", logEvent.Properties["correlationRemote"].ToString().Trim('"'));
-                            Assert.Equal("[\"r1\", \"r2\", \"r3\", \"r4\", \"qwe\", \"c11\"]", logEvent.Properties["correlationAll"].ToString());
+                            Assert.Equal("[\"qwe\", \"c11\", \"r1\", \"r2\", \"r3\", \"r4\"]", logEvent.Properties["correlationAll"].ToString());
                         }
                     }
                 }

@@ -53,7 +53,7 @@
 
         public IEnumerable<string> LocalShared => this.local.Where(p => p.Value).Select(p => p.Key).SkipWhile(s => s != this.localBookmark);
 
-        public string Remote { get; set; }
+        public string Remote { get; private set; }
 
         public IEnumerable<string> RemoteShared => this.remoteShared.SelectMany(enumerable => enumerable);
 
@@ -137,10 +137,21 @@
             throw new InvalidOperationException("Unable to create child context, because previous context with same nested level not disposed");
         }
 
+        public TraceIdentifiersContext CreateChildWithRemote(string remote)
+        {
+            return this.CreateChildWithRemote(Enumerable.Empty<string>(), remote);
+        }
+
         public TraceIdentifiersContext CreateChildWithRemote(IEnumerable<string> values)
+        {
+            return this.CreateChildWithRemote(values, null);
+        }
+
+        public TraceIdentifiersContext CreateChildWithRemote(IEnumerable<string> values, string remote)
         {
             if (values == null) throw new ArgumentNullException(nameof(values));
             TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared, this.Remote);
+            result.Remote = remote == null ? this.Remote : remote;
             result.remoteBookmark = result.remoteShared.AddLast(values);
             result.localBookmark = this.localBookmark;
             result.OnChildCreated = this.OnChildCreated;

@@ -33,15 +33,15 @@ namespace TraceIdentifiers.AspNetCore
             TraceIdentifiersContext feature = TraceIdentifiersContext.StartupEmpty
                 .CloneForThread();
 
-            feature.Remote = this.TryToReadRemoteSingle(context);
+            string remote = this.TryToReadRemoteSingle(context);
 
             feature = feature.CreateChildWithLocal(this.Options.ShareLocal, context.TraceIdentifier);
 
             using (feature)
             {
-                if (all.Any())
+                if (all.Any() || remote != null)
                 {
-                    using (var withRemote = feature.CreateChildWithRemote(all))
+                    using (var withRemote = feature.CreateChildWithRemote(all, remote))
                     {
                         context.Features.Set(withRemote);
                         await _next(context);

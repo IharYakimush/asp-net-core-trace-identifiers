@@ -1,4 +1,7 @@
-﻿namespace TraceIdentifiers.Serilog
+﻿using System.Collections.Generic;
+using System.Security;
+
+namespace TraceIdentifiers.Serilog
 {
     using System;
     using System.Linq;
@@ -25,9 +28,26 @@
 
         public static LogContextBuilder WithRemoteIdentifiers(this LogContextBuilder builder, string name = "correlationRemoteAll")
         {
-            builder.Factories.Add(c => new PropertyEnricher(name, c.RemoteShared.ToArray()));
+            builder.Factories.Add(c =>
+            {
+                IEnumerable<string> remoteShared = RemoteSharedEscaped(builder, c);
+
+                return new PropertyEnricher(name, remoteShared.ToArray());
+            });
 
             return builder;
+        }
+
+        private static IEnumerable<string> RemoteSharedEscaped(LogContextBuilder builder, TraceIdentifiersContext c)
+        {
+            IEnumerable<string> remoteShared = c.RemoteShared;
+
+            if (builder.EscapeRemote)
+            {
+                remoteShared = remoteShared.Select(SecurityElement.Escape);
+            }
+
+            return remoteShared;
         }
 
         public static LogContextBuilder WithLocalIdentifier(this LogContextBuilder builder, string name = "correlationLocal")
@@ -39,7 +59,8 @@
 
         public static LogContextBuilder WithRemoteAndLocalIdentifiers(this LogContextBuilder builder, string name = "correlationAll")
         {
-            builder.Factories.Add(c => new PropertyEnricher(name, c.RemoteShared.Concat(c.Local.Reverse()).ToArray()));
+            builder.Factories.Add(c =>
+                new PropertyEnricher(name, c.Local.Reverse().Concat(RemoteSharedEscaped(builder, c)).ToArray()));
 
             return builder;
         }
@@ -47,9 +68,12 @@
         public static LogContextBuilder WithRemoteIdentifier(this LogContextBuilder builder, string name = "correlationRemote")
         {
             builder.Factories.Add(c =>
-                {
-                    return c.Remote == null ? null : new PropertyEnricher(name, c.Remote);
-                });
+            {
+                return c.Remote == null
+                    ? null
+                    : new PropertyEnricher(name,
+                        builder.EscapeRemote ? SecurityElement.Escape(c.Remote) : c.Remote);
+            });
 
             return builder;
         }
