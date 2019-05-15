@@ -1,26 +1,25 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using System;
 
 namespace TraceIdentifiers.AspNetCore
 {
     public class TraceIdentifiersMiddlewareOptions : IOptions<TraceIdentifiersMiddlewareOptions>
     {
-        private const string DefaultHeaderName = TraceIdentifiersSendOptions.DefaultHeaderName;
-
         public TraceIdentifiersMiddlewareOptions Value => this;
 
-        public bool WriteLocal { get; set; } = true;
-        public bool ShareLocal { get; set; } = true;
+        public Func<HttpContext, bool> WriteLocal { get; set; } = (c) => true;
 
-        public string WriteLocalHeaderName { get; set; } = DefaultHeaderName;
+        public Func<HttpContext, string> WriteLocalHeaderName { get; set; } = (c) => TraceIdentifiersSendOptions.DefaultHeaderName;
 
-        public bool ReadRemoteShared { get; set; } = true;
+        public Func<HttpContext, bool> ReadRemote { get; set; } = (c) => true;
 
-        public string RemoteSharedHeaderName { get; set; } = DefaultHeaderName;
+        public Func<HttpContext, string> ReadRemoteHeaderName { get; set; } = (c) => TraceIdentifiersSendOptions.DefaultHeaderName;
 
-        public char RemoteSharedSeparator { get; set; } = TraceIdentifiersSendOptions.DefaultSeparator;
+        public Func<HttpContext, char> ReadRemoteSeparator { get; set; } = (c) => TraceIdentifiersSendOptions.DefaultSeparator;
 
-        public int RemoteSharedMaxCount { get; set; } = TraceIdentifiersSendOptions.DefaultIdentifiersMaxCount;
+        public Func<HttpContext, int> ReadRemoteMaxCount { get; set; } = (c) => TraceIdentifiersSendOptions.DefaultIdentifiersMaxCount;
 
-        public int RemoteSharedMaxLength { get; set; } = TraceIdentifiersSendOptions.DefaultIdentifierMaxLength;
+        public Func<HttpContext, int> ReadRemoteMaxLength { get; set; } = (c) => TraceIdentifiersSendOptions.DefaultIdentifierMaxLength;
     }
 }

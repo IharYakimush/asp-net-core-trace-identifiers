@@ -28,7 +28,7 @@ namespace TraceIdentifiers.AspNetCore
         public async Task InvokeAsync(HttpContext context)
         {
             this.TryToWriteLocal(context);
-            ICollection<string> all = this.TryToReadRemoteShared(context).ToArray();
+            ICollection<string> all = this.TryToReadRemote(context).ToArray();
 
             TraceIdentifiersContext feature = TraceIdentifiersContext.StartupEmpty
                 .CloneForThread();
@@ -78,18 +78,20 @@ namespace TraceIdentifiers.AspNetCore
             }
         }
 
-        private IEnumerable<string> TryToReadRemoteShared(HttpContext context)
+        private IEnumerable<string> TryToReadRemote(HttpContext context)
         {
-            if (this.Options.ReadRemoteShared && context.Request.Headers.TryGetValue(this.Options.RemoteSharedHeaderName, out var vals))
-            {                
-                IEnumerable<string> allValues = vals.SelectMany(str => 
-                str.Contains(this.Options.RemoteSharedSeparator) 
-                    ? str.Split(this.Options.RemoteSharedSeparator) 
-                    : Enumerable.Repeat(str, 1));
+            if (this.Options.ReadRemote(context) && context.Request.Headers.TryGetValue(this.Options.ReadRemoteHeaderName(context), out var vals))
+            {
+                char separator = this.Options.ReadRemoteSeparator(context);
+                int maxLength = this.Options.ReadRemoteMaxLength(context);
+                int maxCount = this.Options.ReadRemoteMaxCount(context);
 
-                return allValues.Where(v => !string.IsNullOrWhiteSpace(v))
-                    .Select(s => s.Length > this.Options.RemoteSharedMaxLength ? s.Substring(0, this.Options.RemoteSharedMaxLength) : s)
-                    .Take(this.Options.RemoteSharedMaxCount);
+                IEnumerable<string> allValues = vals.SelectMany(str =>
+                    str.Contains(separator)
+                        ? str.Split(separator)
+                        : Enumerable.Repeat(str, 1));
+
+                return allValues.Where(v => !string.IsNullOrWhiteSpace(v) && v.Length <= maxLength).Take(maxCount);
             }
 
             return Enumerable.Empty<string>();
