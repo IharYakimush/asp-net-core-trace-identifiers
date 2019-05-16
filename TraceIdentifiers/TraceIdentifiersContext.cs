@@ -1,10 +1,10 @@
-﻿namespace TraceIdentifiers.AspNetCore
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
+namespace TraceIdentifiers
+{
     public class TraceIdentifiersContext : IDisposable
     {
         private static readonly char[] Chars =
@@ -26,12 +26,12 @@
 
         public event EventHandler<EventArgs> OnChildCreated;
 
-        public static TraceIdentifiersContext StartupEmpty { get; } = new TraceIdentifiersContext(
-            new Stack<KeyValuePair<string, bool>>(),
-            new LinkedList<IEnumerable<string>>(), 
-            null);
-
         public static string StartupId { get; set; } = GetNonSecureRandomString(4);
+
+        public static TraceIdentifiersContext Startup { get; } = new TraceIdentifiersContext(
+            new Stack<KeyValuePair<string, bool>>(),
+            new LinkedList<IEnumerable<string>>(),
+            null);
 
         public static string GetNonSecureRandomString(int length = 8)
         {
@@ -125,7 +125,7 @@
 
         public TraceIdentifiersContext CreateChildWithLocal(bool shared = true, string local = null)
         {
-            if (this.localBookmark == this.local.Peek().Key)
+            if (!this.local.Any() || this.localBookmark == this.local.Peek().Key)
             {
                 TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared, this.Remote, local, shared);
 

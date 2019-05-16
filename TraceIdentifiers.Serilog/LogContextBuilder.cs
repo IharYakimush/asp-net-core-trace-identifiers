@@ -5,8 +5,6 @@
 
     using global::Serilog.Core;
 
-    using TraceIdentifiers.AspNetCore;
-
     public class LogContextBuilder
     {
         public bool EscapeRemote { get; set; } = true;

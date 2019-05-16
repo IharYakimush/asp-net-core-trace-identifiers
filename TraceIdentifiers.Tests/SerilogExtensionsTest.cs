@@ -11,8 +11,6 @@
     using global::Serilog.Events;
 
     using Moq;
-
-    using TraceIdentifiers.AspNetCore;
     using TraceIdentifiers.Serilog;
 
     using Xunit;

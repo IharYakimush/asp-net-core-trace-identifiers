@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,52 +26,50 @@ namespace TraceIdentifiers.AspNetCore
 
         public async Task InvokeAsync(HttpContext context)
         {
-            this.TryToWriteLocal(context);
             ICollection<string> all = this.TryToReadRemote(context).ToArray();
 
-            TraceIdentifiersContext feature = TraceIdentifiersContext.StartupEmpty
+            TraceIdentifiersContext feature = TraceIdentifiersContext.Startup
                 .CloneForThread();
 
-            string remote = this.TryToReadRemoteSingle(context);
+            string local = this.Options.LocalValueFactory(context);
 
-            feature = feature.CreateChildWithLocal(this.Options.ShareLocal, context.TraceIdentifier);
+            feature = feature.CreateChildWithLocal(this.Options.LocalIsShared(context), local);
 
-            using (feature)
+            try
             {
-                if (all.Any() || remote != null)
+                using (feature)
                 {
-                    using (var withRemote = feature.CreateChildWithRemote(all, remote))
+                    if (all.Any())
                     {
-                        context.Features.Set(withRemote);
+                        using (var withRemote = feature.CreateChildWithRemote(all))
+                        {
+                            context.Features.Set(withRemote);
+                            await _next(context);
+                        }
+                    }
+                    else
+                    {
+                        context.Features.Set(feature);
                         await _next(context);
                     }
                 }
-                else
-                {
-                    context.Features.Set(feature);
-                    await _next(context);
-                }
             }
-                       
-            this.TryToWriteLocal(context);
+            finally
+            {
+                this.TryToWriteLocal(context, local);
+            }
         }
 
-        private string TryToReadRemoteSingle(HttpContext context)
+        private void TryToWriteLocal(HttpContext context, string value)
         {
-            string result = null;
-
-            return result;
-        }
-
-        private void TryToWriteLocal(HttpContext context)
-        {
-            if (this.Options.WriteLocal)
+            if (this.Options.LocalIsWrite(context))
             {
                 if (!context.Response.HasStarted)
                 {
-                    if (!context.Response.Headers.ContainsKey(this.Options.WriteLocalHeaderName))
+                    string writeLocalHeaderName = this.Options.WriteLocalHeaderName(context);
+                    if (!context.Response.Headers.ContainsKey(writeLocalHeaderName))
                     {
-                        context.Response.Headers[this.Options.WriteLocalHeaderName] = context.TraceIdentifier;
+                        context.Response.Headers[writeLocalHeaderName] = value;
                     }
                 }
             }

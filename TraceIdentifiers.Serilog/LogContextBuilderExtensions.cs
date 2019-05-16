@@ -8,8 +8,6 @@ namespace TraceIdentifiers.Serilog
 
     using global::Serilog.Core.Enrichers;
 
-    using TraceIdentifiers.AspNetCore;
-
     public static class LogContextBuilderExtensions
     {
         public static LogContextBuilder WithStartup(this LogContextBuilder builder, string name = "correlationStartup")

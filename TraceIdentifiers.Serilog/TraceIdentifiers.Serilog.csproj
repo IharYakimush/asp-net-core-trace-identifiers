@@ -15,7 +15,7 @@
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.0.0.0</FileVersion>
     <Version>2.0.0</Version>
-    <PackageReleaseNotes>Unnecessary dependencies were removed. Default propery names were changed.</PackageReleaseNotes>
+    <PackageReleaseNotes>Local and Remote identifiers concept updated. Breaking changes</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

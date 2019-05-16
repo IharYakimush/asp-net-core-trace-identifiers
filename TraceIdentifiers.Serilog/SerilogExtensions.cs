@@ -8,16 +8,22 @@ namespace TraceIdentifiers.Serilog
     using global::Serilog.Context;
     using global::Serilog.Core;
 
-    using TraceIdentifiers.AspNetCore;
-
     public static class SerilogExtensions
     {
         public static TraceIdentifiersContext LinkToSerilogLogContext(
             this TraceIdentifiersContext traceIdentifiersContext, Action<LogContextBuilder> settings = null)
         {
             LogContextBuilder builder = new LogContextBuilder();
-            settings?.Invoke(builder);
 
+            if (settings != null)
+            {
+                settings.Invoke(builder);
+            }
+            else
+            {
+                builder.WithDefaults();
+            }
+            
             LinkEnrichersToContext(traceIdentifiersContext, builder);
 
             traceIdentifiersContext.OnChildCreated += (sender, args) =>

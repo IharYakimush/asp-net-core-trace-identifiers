@@ -8,7 +8,10 @@ namespace TraceIdentifiers.AspNetCore
     {
         public TraceIdentifiersMiddlewareOptions Value => this;
 
-        public Func<HttpContext, bool> WriteLocal { get; set; } = (c) => true;
+        public Func<HttpContext, bool> LocalIsWrite { get; set; } = (c) => true;
+
+        public Func<HttpContext, bool> LocalIsShared { get; set; } = (c) => true;
+        public Func<HttpContext, string> LocalValueFactory { get; set; } = (c) => c.TraceIdentifier;
 
         public Func<HttpContext, string> WriteLocalHeaderName { get; set; } = (c) => TraceIdentifiersSendOptions.DefaultHeaderName;
 

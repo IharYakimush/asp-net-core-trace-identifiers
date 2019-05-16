@@ -2,9 +2,6 @@
 {
     using System;
     using System.Linq;
-
-    using TraceIdentifiers.AspNetCore;
-
     using Xunit;
 
     public class TraceIdentifiersContextTests
