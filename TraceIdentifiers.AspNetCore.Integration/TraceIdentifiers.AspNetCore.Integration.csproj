@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TraceIdentifiers.AspNetCore\TraceIdentifiers.AspNetCore.csproj" />
+    <ProjectReference Include="..\TraceIdentifiers.HttpClient\TraceIdentifiers.HttpClient.csproj" />
     <ProjectReference Include="..\TraceIdentifiers.Serilog\TraceIdentifiers.Serilog.csproj" />
   </ItemGroup>
 

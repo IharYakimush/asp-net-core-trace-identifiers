@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Primitives;
 
 namespace TraceIdentifiers.AspNetCore
 {
@@ -77,16 +78,16 @@ namespace TraceIdentifiers.AspNetCore
 
         private IEnumerable<string> TryToReadRemote(HttpContext context)
         {
-            if (this.Options.ReadRemote(context) && context.Request.Headers.TryGetValue(this.Options.ReadRemoteHeaderName(context), out var vals))
+            if (this.Options.ReadRemote(context) && context.Request.Headers.TryGetValue(this.Options.ReadRemoteHeaderName(context), out StringValues stringValues))
             {
                 char separator = this.Options.ReadRemoteSeparator(context);
                 int maxLength = this.Options.ReadRemoteMaxLength(context);
                 int maxCount = this.Options.ReadRemoteMaxCount(context);
 
-                IEnumerable<string> allValues = vals.SelectMany(str =>
+                IEnumerable<string> allValues = stringValues.SelectMany(str =>
                     str.Contains(separator)
                         ? str.Split(separator)
-                        : Enumerable.Repeat(str, 1));
+                        : Enumerable.Repeat(str, 1)).Select(s => s.Trim());
 
                 return allValues.Where(v => !string.IsNullOrWhiteSpace(v) && v.Length <= maxLength).Take(maxCount);
             }

@@ -6,7 +6,7 @@
 
         public const string DefaultSharedHeaderName = "X-TraceIdentifiers";
 
-        public const char DefaultSeparator = '|';
+        public const char DefaultSeparator = ',';
 
         public const int DefaultIdentifiersMaxCount = 10;
 

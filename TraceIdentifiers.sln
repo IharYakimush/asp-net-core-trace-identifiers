@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceIdentifiers.Tests", "T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraceIdentifiers.Serilog", "TraceIdentifiers.Serilog\TraceIdentifiers.Serilog.csproj", "{BE8F57F1-A3B7-4659-A8C5-08B89A2E3441}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceIdentifiers.HttpClient", "TraceIdentifiers.HttpClient\TraceIdentifiers.HttpClient.csproj", "{71F79BEA-CA89-47BF-AA72-A8199DC6126F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{BE8F57F1-A3B7-4659-A8C5-08B89A2E3441}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE8F57F1-A3B7-4659-A8C5-08B89A2E3441}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE8F57F1-A3B7-4659-A8C5-08B89A2E3441}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71F79BEA-CA89-47BF-AA72-A8199DC6126F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71F79BEA-CA89-47BF-AA72-A8199DC6126F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71F79BEA-CA89-47BF-AA72-A8199DC6126F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71F79BEA-CA89-47BF-AA72-A8199DC6126F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
