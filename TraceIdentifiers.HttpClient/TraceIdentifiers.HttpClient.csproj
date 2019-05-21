@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TraceIdentifiers.AspNetCore\TraceIdentifiers.AspNetCore.csproj" />
     <ProjectReference Include="..\TraceIdentifiers\TraceIdentifiers.csproj" />
   </ItemGroup>
 

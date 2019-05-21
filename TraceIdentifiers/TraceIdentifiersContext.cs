@@ -26,12 +26,13 @@ namespace TraceIdentifiers
 
         public event EventHandler<EventArgs> OnChildCreated;
 
+        public event EventHandler<EventArgs> OnClonedForThread;
+
         public static string StartupId { get; set; } = GetNonSecureRandomString(4);
 
         public static TraceIdentifiersContext Startup { get; } = new TraceIdentifiersContext(
             new Stack<KeyValuePair<string, bool>>(),
-            new LinkedList<IEnumerable<string>>(),
-            null);
+            new LinkedList<IEnumerable<string>>());
 
         public static string GetNonSecureRandomString(int length = 8)
         {
@@ -49,11 +50,9 @@ namespace TraceIdentifiers
             return result.ToString();
         }
 
-        public IEnumerable<string> Local => this.local.Select(p => p.Key).SkipWhile(s => s != this.localBookmark);
+        public IEnumerable<string> Local => this.local.Select(p => p.Key);
 
-        public IEnumerable<string> LocalShared => this.local.Where(p => p.Value).Select(p => p.Key).SkipWhile(s => s != this.localBookmark);
-
-        public string Remote { get; private set; }
+        public IEnumerable<string> LocalShared => this.local.Where(p => p.Value).Select(p => p.Key);
 
         public IEnumerable<string> RemoteShared => this.remoteShared.SelectMany(enumerable => enumerable);
 
@@ -103,22 +102,19 @@ namespace TraceIdentifiers
             this.localBookmark = traceIdentifier;
         }
 
-        private TraceIdentifiersContext(Stack<KeyValuePair<string, bool>> local, LinkedList<IEnumerable<string>> remoteShared, string remote)
+        private TraceIdentifiersContext(Stack<KeyValuePair<string, bool>> local, LinkedList<IEnumerable<string>> remoteShared)
         {
             this.local = local;
 
             this.remoteShared = remoteShared;
-
-            this.Remote = remote;
         }
 
         private TraceIdentifiersContext(
             Stack<KeyValuePair<string, bool>> local,
             LinkedList<IEnumerable<string>> remoteShared,
-            string remote,
             string traceIdentifier,
             bool shared)
-            : this(local, remoteShared, remote)
+            : this(local, remoteShared)
         {
             this.AddIdentifierToLocal(shared, traceIdentifier);
         }
@@ -127,9 +123,10 @@ namespace TraceIdentifiers
         {
             if (!this.local.Any() || this.localBookmark == this.local.Peek().Key)
             {
-                TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared, this.Remote, local, shared);
+                TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared, local, shared);
 
                 result.OnChildCreated = this.OnChildCreated;
+                result.OnClonedForThread = this.OnClonedForThread;
                 this.OnChildCreated?.Invoke(result, EventArgs.Empty);
                 return result;
             }
@@ -137,24 +134,14 @@ namespace TraceIdentifiers
             throw new InvalidOperationException("Unable to create child context, because previous context with same nested level not disposed");
         }
 
-        public TraceIdentifiersContext CreateChildWithRemote(string remote)
-        {
-            return this.CreateChildWithRemote(Enumerable.Empty<string>(), remote);
-        }
-
         public TraceIdentifiersContext CreateChildWithRemote(IEnumerable<string> values)
         {
-            return this.CreateChildWithRemote(values, null);
-        }
-
-        public TraceIdentifiersContext CreateChildWithRemote(IEnumerable<string> values, string remote)
-        {
             if (values == null) throw new ArgumentNullException(nameof(values));
-            TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared, this.Remote);
-            result.Remote = remote == null ? this.Remote : remote;
+            TraceIdentifiersContext result = new TraceIdentifiersContext(this.local, this.remoteShared);
             result.remoteBookmark = result.remoteShared.AddLast(values);
             result.localBookmark = this.localBookmark;
             result.OnChildCreated = this.OnChildCreated;
+            result.OnClonedForThread = this.OnClonedForThread;
             this.OnChildCreated?.Invoke(result, EventArgs.Empty);
             return result;
         }
@@ -164,10 +151,10 @@ namespace TraceIdentifiers
             Stack<KeyValuePair<string, bool>> stack = new Stack<KeyValuePair<string, bool>>(this.local.Reverse());
             LinkedList<IEnumerable<string>> list = new LinkedList<IEnumerable<string>>(this.remoteShared.Select(enm => enm.ToArray()).ToArray());
 
-            TraceIdentifiersContext result = new TraceIdentifiersContext(stack, list, this.Remote);
+            TraceIdentifiersContext result = new TraceIdentifiersContext(stack, list);
 
-            result.OnChildCreated = this.OnChildCreated;
             result.localBookmark = this.localBookmark;
+            result.OnClonedForThread = this.OnClonedForThread;
             
             if (this.remoteBookmark != null)
             {
@@ -182,6 +169,8 @@ namespace TraceIdentifiers
 
                 result.remoteBookmark = nresult;
             }
+
+            this.OnClonedForThread?.Invoke(result, EventArgs.Empty);
 
             return result;
         }

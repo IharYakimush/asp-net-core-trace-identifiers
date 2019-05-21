@@ -26,7 +26,11 @@ namespace TraceIdentifiers.AspNetCore.Integration
             Log.Logger = loggerConfiguration.CreateLogger();
 
             services.AddLogging(builder => builder.ClearProviders().AddSerilog(dispose: true));
-            IHttpClientBuilder httpClientBuilder = services.AddHttpClient<System.Net.Http.HttpClient>(client => { });            
+
+            IHttpClientBuilder httpClientBuilder = services.AddHttpClient("default");           
+
+            httpClientBuilder.SendTraceIdentifiersFromHttpContext((message, context) =>
+                message.TryAddLocalSharedAndRemoteShared(context, SendIdentifiersOptions.Default));            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,6 +43,10 @@ namespace TraceIdentifiers.AspNetCore.Integration
                 
             app.Run(async (context) =>
             {
+                if (context.Request.Method != "GET")
+                {
+                    return;
+                }
                 await context.Response.WriteAsync("Hello World! ");
                 TraceIdentifiersContext ti = context.Features.Get<TraceIdentifiersContext>();
 
@@ -76,23 +84,23 @@ namespace TraceIdentifiers.AspNetCore.Integration
                     using (var c2 = ti.CreateChildWithLocal(true, "clientManual2"))
                     {
                         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, localhost);
-                        request.TryAddLocalSharedAndRemoteShared(c2, new SendIdentifiersOptions {UseSeparator = true});
+                        request.TryAddLocalSharedAndRemoteShared(c2, new SendIdentifiersOptions { UseSeparator = true });
                         HttpResponseMessage response = await httpClient.SendAsync(request);
 
-                        await context.Response.WriteAsync($"\nResponse2: \n");
+                        await context.Response.WriteAsync($"\nResponse11: \n");
                         await context.Response.WriteAsync($"{await response.Content.ReadAsStringAsync()} \n");
                     }
 
-                    //httpClient =
-                    //    context.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient();
+                    httpClient =
+                        context.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient("default");
 
-                    //using (ti.CreateChildWithLocal(true, "clientFromFactory"))
-                    //{
-                    //    HttpResponseMessage response = await httpClient.GetAsync(localhost);
+                    using (ti.CreateChildWithLocal(true, "clientFromFactory"))
+                    {
+                        HttpResponseMessage response = await httpClient.GetAsync(localhost);
 
-                    //    await context.Response.WriteAsync($"Response2: \n");
-                    //    await context.Response.WriteAsync($"{await response.Content.ReadAsStringAsync()} \n");
-                    //}
+                        await context.Response.WriteAsync($"Response2: \n");
+                        await context.Response.WriteAsync($"{await response.Content.ReadAsStringAsync()} \n");
+                    }
                 }
 
             });

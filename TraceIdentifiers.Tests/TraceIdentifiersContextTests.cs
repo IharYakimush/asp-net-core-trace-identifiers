@@ -35,10 +35,13 @@
                     Assert.Equal("c1", c11.Local.ElementAt(1));
                     Assert.Equal("qwe", c11.Local.ElementAt(2));
 
-                    Assert.Equal("c1", c1.Local.ElementAt(0));
-                    Assert.Equal("qwe", c1.Local.ElementAt(1));
+                    Assert.Equal("c11", c1.Local.ElementAt(0));
+                    Assert.Equal("c1", c1.Local.ElementAt(1));
+                    Assert.Equal("qwe", c1.Local.ElementAt(2));
 
-                    Assert.Equal("qwe", c.Local.ElementAt(0));
+                    Assert.Equal("c11", c.Local.ElementAt(0));
+                    Assert.Equal("c1", c.Local.ElementAt(1));
+                    Assert.Equal("qwe", c.Local.ElementAt(2));
                 }
 
                 using (var c12 = c1.CreateChildWithLocal(false, "c12"))
@@ -46,6 +49,18 @@
                     Assert.Equal("c12", c12.Local.ElementAt(0));
                     Assert.Equal("c1", c12.Local.ElementAt(1));
                     Assert.Equal("qwe", c12.Local.ElementAt(2));
+                    Assert.Equal(3, c12.Local.Count());
+
+                    Assert.Equal("c12", c1.Local.ElementAt(0));
+                    Assert.Equal("c1", c1.Local.ElementAt(1));
+                    Assert.Equal("qwe", c1.Local.ElementAt(2));
+                    Assert.Equal(3, c1.Local.Count());
+
+
+                    Assert.Equal("c12", c.Local.ElementAt(0));
+                    Assert.Equal("c1", c.Local.ElementAt(1));
+                    Assert.Equal("qwe", c.Local.ElementAt(2));
+                    Assert.Equal(3, c.Local.Count());
                 }
             }
 
@@ -53,6 +68,12 @@
             {
                 Assert.Equal("c2", c2.Local.ElementAt(0));
                 Assert.Equal("qwe", c2.Local.ElementAt(1));
+                Assert.Equal(2, c2.Local.Count());
+
+
+                Assert.Equal("c2", c.Local.ElementAt(0));
+                Assert.Equal("qwe", c.Local.ElementAt(1));
+                Assert.Equal(2, c.Local.Count());
             }
         }
 

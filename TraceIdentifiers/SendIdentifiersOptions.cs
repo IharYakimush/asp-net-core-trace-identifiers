@@ -1,4 +1,4 @@
-﻿namespace TraceIdentifiers.HttpClient
+﻿namespace TraceIdentifiers
 {
     public class SendIdentifiersOptions
     {

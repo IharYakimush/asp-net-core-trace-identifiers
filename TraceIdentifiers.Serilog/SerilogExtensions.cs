@@ -1,4 +1,5 @@
 ﻿using System;
+using Serilog.Core.Enrichers;
 
 namespace TraceIdentifiers.Serilog
 {
@@ -11,7 +12,7 @@ namespace TraceIdentifiers.Serilog
     public static class SerilogExtensions
     {
         public static TraceIdentifiersContext LinkToSerilogLogContext(
-            this TraceIdentifiersContext traceIdentifiersContext, Action<LogContextBuilder> settings = null)
+            this TraceIdentifiersContext context, Action<LogContextBuilder> settings = null)
         {
             LogContextBuilder builder = new LogContextBuilder();
 
@@ -24,38 +25,24 @@ namespace TraceIdentifiers.Serilog
                 builder.WithDefaults();
             }
             
-            LinkEnrichersToContext(traceIdentifiersContext, builder);
+            LinkEnrichersToContext(context, builder);
 
-            traceIdentifiersContext.OnChildCreated += (sender, args) =>
-                {
-                    TraceIdentifiersContext context = (TraceIdentifiersContext)sender;
+            context.OnClonedForThread += (sender, args) =>
+            {
+                TraceIdentifiersContext newContext = (TraceIdentifiersContext) sender;
+                LinkEnrichersToContext(newContext, builder);
+            };
 
-                    LinkEnrichersToContext(context, builder);
-                };
-
-            return traceIdentifiersContext;
+            return context;
         }
+
+        
 
         private static void LinkEnrichersToContext(TraceIdentifiersContext context, LogContextBuilder builder)
         {
-            ILogEventEnricher[] enrichers = builder.Factories.Select(
-                func =>
-                    {
-                        try
-                        {
-                            return func(context);
-                        }
-                        catch
-                        {
-                            return null;
-                        }
-                    }).Where(e => e != null).ToArray();
-
-            if (enrichers.Any())
-            {
-                IDisposable disposable = LogContext.Push(enrichers);
-                context.Link(disposable);
-            }
+            TraceIdentifiersEnricher traceIdentifiersEnricher = new TraceIdentifiersEnricher(context, builder);
+            IDisposable disposable = LogContext.Push(traceIdentifiersEnricher);
+            context.Link(disposable);            
         }
     }
 }

@@ -63,22 +63,9 @@ namespace TraceIdentifiers.Serilog
             return builder;
         }
 
-        public static LogContextBuilder WithRemoteIdentifier(this LogContextBuilder builder, string name = "correlationRemote")
-        {
-            builder.Factories.Add(c =>
-            {
-                return c.Remote == null
-                    ? null
-                    : new PropertyEnricher(name,
-                        builder.EscapeRemote ? SecurityElement.Escape(c.Remote) : c.Remote);
-            });
-
-            return builder;
-        }
-
         public static LogContextBuilder WithDefaults(this LogContextBuilder builder)
         {
-            return builder.WithStartup().WithLocalIdentifier().WithRemoteIdentifier().WithRemoteAndLocalIdentifiers();
+            return builder.WithStartup().WithLocalIdentifier().WithRemoteAndLocalIdentifiers();
         }
     }
 }
