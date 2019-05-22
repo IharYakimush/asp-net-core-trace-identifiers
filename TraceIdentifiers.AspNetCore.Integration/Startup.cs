@@ -17,6 +17,8 @@ namespace TraceIdentifiers.AspNetCore.Integration
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTraceIdentifiers();
+            services.AddMvc();
             LoggerConfiguration loggerConfiguration = new LoggerConfiguration();
 
             loggerConfiguration.Enrich.FromLogContext();
@@ -40,6 +42,10 @@ namespace TraceIdentifiers.AspNetCore.Integration
             TraceIdentifiersContext.Startup.LinkToSerilogLogContext();
 
             app.UseTraceIdentifiers();
+
+            app.MapWhen(context =>
+                    context.Request.Path.StartsWithSegments(new PathString("/mvc"), StringComparison.OrdinalIgnoreCase),
+                builder => builder.UseMvcWithDefaultRoute());
                 
             app.Run(async (context) =>
             {
