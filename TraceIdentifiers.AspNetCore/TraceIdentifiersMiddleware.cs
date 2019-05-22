@@ -27,32 +27,27 @@ namespace TraceIdentifiers.AspNetCore
 
         public async Task InvokeAsync(HttpContext context)
         {
-            ICollection<string> all = this.TryToReadRemote(context).ToArray();
-
             TraceIdentifiersContext feature = TraceIdentifiersContext.Startup
                 .CloneForThread();
 
             string local = this.Options.LocalValueFactory(context);
+            this.TryToWriteLocal(context, local);
 
             feature = feature.CreateChildWithLocal(this.Options.LocalIsShared(context), local);
+            context.Features.Set(feature);
+
+            ICollection<string> all = this.TryToReadRemote(context).ToArray();
+
+            if (all.Any())
+            {
+                feature.CreateChildWithRemote(all);
+            }
 
             try
             {
                 using (feature)
                 {
-                    if (all.Any())
-                    {
-                        using (var withRemote = feature.CreateChildWithRemote(all))
-                        {
-                            context.Features.Set(withRemote);
-                            await _next(context);
-                        }
-                    }
-                    else
-                    {
-                        context.Features.Set(feature);
-                        await _next(context);
-                    }
+                    await _next(context);
                 }
             }
             finally

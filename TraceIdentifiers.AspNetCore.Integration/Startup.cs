@@ -73,21 +73,24 @@ namespace TraceIdentifiers.AspNetCore.Integration
 
                     using (var c1 = ti.CreateChildWithLocal(true, "clientManual1"))
                     {
-                        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, localhost);
+                        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, localhost + "clientManual1");
                         request.TryAddLocalSharedAndRemoteShared(c1, SendIdentifiersOptions.Default);
                         HttpResponseMessage response = await httpClient.SendAsync(request);
+                        string remoteSingle = response.ReadRemoteIdentifier();
 
-                        await context.Response.WriteAsync($"\nResponse1: \n");
+                        c1.CreateChildWithRemote(remoteSingle, false); //// not disposed but not shared, so available in logs only
+                        await context.Response.WriteAsync($"\nResponse1: remote identifier: {remoteSingle}\n");
                         await context.Response.WriteAsync($"{await response.Content.ReadAsStringAsync()} \n");
                     }
 
                     using (var c2 = ti.CreateChildWithLocal(true, "clientManual2"))
                     {
-                        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, localhost);
+                        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, localhost + "clientManual2");
                         request.TryAddLocalSharedAndRemoteShared(c2, new SendIdentifiersOptions { UseSeparator = true });
                         HttpResponseMessage response = await httpClient.SendAsync(request);
-
-                        await context.Response.WriteAsync($"\nResponse11: \n");
+                        string remoteSingle = response.ReadRemoteIdentifier();
+                        c2.CreateChildWithRemote(remoteSingle); // not disposed and shared, so will be propagated to all next requests and available in logs
+                        await context.Response.WriteAsync($"\nResponse11: remote identifier: {remoteSingle}\n");
                         await context.Response.WriteAsync($"{await response.Content.ReadAsStringAsync()} \n");
                     }
 
@@ -96,13 +99,13 @@ namespace TraceIdentifiers.AspNetCore.Integration
 
                     using (ti.CreateChildWithLocal(true, "clientFromFactory"))
                     {
-                        HttpResponseMessage response = await httpClient.GetAsync(localhost);
+                        HttpResponseMessage response = await httpClient.GetAsync(localhost + "clientFromFactory");
+                        string remoteSingle = response.ReadRemoteIdentifier();
 
-                        await context.Response.WriteAsync($"Response2: \n");
+                        await context.Response.WriteAsync($"Response2: remote identifier: {remoteSingle} \n");
                         await context.Response.WriteAsync($"{await response.Content.ReadAsStringAsync()} \n");
                     }
                 }
-
             });
         }
     }

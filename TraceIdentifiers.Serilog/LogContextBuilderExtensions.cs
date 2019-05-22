@@ -28,7 +28,7 @@ namespace TraceIdentifiers.Serilog
         {
             builder.Factories.Add(c =>
             {
-                IEnumerable<string> remoteShared = RemoteSharedEscaped(builder, c);
+                IEnumerable<string> remoteShared = RemoteAllEscaped(builder, c);
 
                 return new PropertyEnricher(name, remoteShared.ToArray());
             });
@@ -36,9 +36,9 @@ namespace TraceIdentifiers.Serilog
             return builder;
         }
 
-        private static IEnumerable<string> RemoteSharedEscaped(LogContextBuilder builder, TraceIdentifiersContext c)
+        private static IEnumerable<string> RemoteAllEscaped(LogContextBuilder builder, TraceIdentifiersContext c)
         {
-            IEnumerable<string> remoteShared = c.RemoteShared;
+            IEnumerable<string> remoteShared = c.Remote;
 
             if (builder.EscapeRemote)
             {
@@ -58,7 +58,7 @@ namespace TraceIdentifiers.Serilog
         public static LogContextBuilder WithRemoteAndLocalIdentifiers(this LogContextBuilder builder, string name = "correlationAll")
         {
             builder.Factories.Add(c =>
-                new PropertyEnricher(name, c.Local.Reverse().Concat(RemoteSharedEscaped(builder, c)).ToArray()));
+                new PropertyEnricher(name, c.Local.Reverse().Concat(RemoteAllEscaped(builder, c)).ToArray()));
 
             return builder;
         }

@@ -28,6 +28,22 @@ namespace TraceIdentifiers
                 Normalize(context.RemoteShared, options));
         }
 
+        public static string ReadRemoteIdentifier(this HttpResponseMessage message,
+            string headerName = TraceIdentifiersDefaults.DefaultHeaderName)
+        {
+            if (message.Headers.TryGetValues(headerName, out var values))
+            {
+                return values.FirstOrDefault();
+            }
+
+            return null;
+        }
+
+        public static TraceIdentifiersContext CreateChildWithRemote(this TraceIdentifiersContext context, string value, bool shared = true)
+        {
+            return context.CreateChildWithRemote(Enumerable.Repeat(value, 1), shared);
+        }
+
         private static IEnumerable<string> Normalize(IEnumerable<string> values, SendIdentifiersOptions options)
         {
             if (options.UseSeparator)
