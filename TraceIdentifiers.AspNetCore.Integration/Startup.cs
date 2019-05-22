@@ -20,8 +20,8 @@ namespace TraceIdentifiers.AspNetCore.Integration
             services.AddTraceIdentifiers();
             services.AddMvc();
             LoggerConfiguration loggerConfiguration = new LoggerConfiguration();
-
             loggerConfiguration.Enrich.FromLogContext();
+
             loggerConfiguration.WriteTo.Console(outputTemplate:
                 "[{Timestamp:HH:mm:ss} {Level:u3}] {EventId} {Message:lj} {Properties}{NewLine}{Exception}{NewLine}");
 
