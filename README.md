@@ -21,7 +21,7 @@ public void ConfigureServices(IServiceCollection services)
 
 public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 {
-    // Should be configured as eraly as possible in middlewares
+    // Should be configured as early as possible in middlewares
     app.UseTraceIdentifiers();
 }
 ```
